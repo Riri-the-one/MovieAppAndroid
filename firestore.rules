@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      match /feedback/{movieId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Lecture par champ uid (requête whereEqualTo) ou par id de document {uid}_{movieId}
+    match /users_feedback/{docId} {
+      allow read: if request.auth != null
+        && (resource.data.uid == request.auth.uid
+            || docId.matches('^' + request.auth.uid + '_.*'));
+
+      allow create, update: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+
+      allow delete: if request.auth != null
+        && (resource.data.uid == request.auth.uid
+            || docId.matches('^' + request.auth.uid + '_.*'));
+    }
+
+    match /users_favorites/{docId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow create, update: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
+    match /users_scores/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

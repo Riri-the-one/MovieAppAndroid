@@ -1,0 +1,9 @@
+<resources>
+    <style name="Base.Theme.Movies_App" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/md_primary</item>
+        <item name="colorOnPrimary">@color/md_on_primary</item>
+        <item name="colorSurface">@color/md_surface</item>
+        <item name="colorOnSurface">@color/md_on_surface</item>
+        <item name="android:windowBackground">@color/md_surface</item>
+    </style>
+</resources>

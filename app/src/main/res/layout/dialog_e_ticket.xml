@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_synopsis_card"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/e_ticket_title"
+        android:textAppearance="@style/TextAppearance.Movies.Title"
+        android:textColor="@color/md_primary"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/textViewTicketMovie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.Movies.Title"
+        android:textSize="17sp"
+        tools:text="Inception" />
+
+    <TextView
+        android:id="@+id/textViewTicketSeat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/md_secondary"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        tools:text="Siège H4" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_ticket_qr_frame"
+        android:padding="12dp">
+
+        <ImageView
+            android:id="@+id/imageViewQrTicket"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:contentDescription="@string/e_ticket_title"
+            android:scaleType="fitCenter"
+            tools:src="@color/md_surface_variant" />
+
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Présentez ce QR code à l\'accueil"
+        android:textAppearance="@style/TextAppearance.Movies.Body"
+        android:textSize="13sp" />
+
+</LinearLayout>

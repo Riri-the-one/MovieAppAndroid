@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Palette Material Design 3 — thème cinéma premium -->
+    <color name="md_primary">#7C6CF0</color>
+    <color name="md_on_primary">#FFFFFF</color>
+    <color name="md_primary_container">#4A3FB8</color>
+    <color name="md_on_primary_container">#E8DEFF</color>
+
+    <color name="md_secondary">#FF8A65</color>
+    <color name="md_on_secondary">#FFFFFF</color>
+    <color name="md_secondary_container">#5C3D2E</color>
+    <color name="md_on_secondary_container">#FFDBCF</color>
+
+    <color name="md_tertiary">#4DD0E1</color>
+    <color name="md_surface">#12121F</color>
+    <color name="md_surface_variant">#252538</color>
+    <color name="md_surface_container">#1C1C2E</color>
+    <color name="md_surface_container_high">#2E2E42</color>
+
+    <color name="md_on_surface">#EDEDF5</color>
+    <color name="md_on_surface_variant">#B8B8CC</color>
+    <color name="md_outline">#4A4A62</color>
+    <color name="md_outline_variant">#35354A</color>
+
+    <!-- Accents UI -->
+    <color name="md_error">#EF5350</color>
+    <color name="rating_gold">#FFD54F</color>
+    <color name="rating_chip_bg">#33FFFFFF</color>
+    <color name="card_bg">#1E1E30</color>
+    <color name="card_stroke">#33FFFFFF</color>
+
+    <!-- Chat -->
+    <color name="bubble_user">#7C6CF0</color>
+    <color name="bubble_user_text">#FFFFFF</color>
+    <color name="bubble_bot">#2E2E42</color>
+    <color name="bubble_bot_text">#EDEDF5</color>
+    <color name="chat_bg">#0E0E18</color>
+    <color name="chat_input_bg">#252538</color>
+
+    <!-- Compatibilité (anciennes références) -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="grey">#626060</color>
+    <color name="purple">#7C6CF0</color>
+    <color name="blue">#7C6CF0</color>
+    <color name="dark_bg">#12121F</color>
+    <color name="text_primary">#EDEDF5</color>
+    <color name="text_secondary">#B8B8CC</color>
+    <color name="bubble_bot_bg">#2E2E42</color>
+</resources>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/md_surface_container"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingTop="36dp"
+    android:paddingBottom="20dp"
+    android:paddingHorizontal="24dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imageViewDrawerAvatar"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:contentDescription="@string/profile_photo"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_avatar_default"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Movies.AvatarCircle"
+        app:strokeColor="@color/md_primary"
+        app:strokeWidth="2dp" />
+
+    <TextView
+        android:id="@+id/textViewProfileName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center"
+        android:textColor="@color/md_on_surface"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="Riri" />
+
+    <TextView
+        android:id="@+id/textViewProfileEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:textColor="@color/md_on_surface_variant"
+        android:textSize="12sp"
+        tools:text="user@email.com" />
+
+</LinearLayout>
