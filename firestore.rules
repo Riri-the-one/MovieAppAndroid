@@ -17,7 +17,10 @@ service cloud.firestore {
             || docId.matches('^' + request.auth.uid + '_.*'));
 
       allow create: if request.auth != null
-        && request.resource.data.uid == request.auth.uid;
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.movieId is int
+        && request.resource.data.movieId > 0
+        && docId == request.auth.uid + '_' + string(request.resource.data.movieId);
       allow update: if request.auth != null
         && resource.data.uid == request.auth.uid
         && request.resource.data.uid == resource.data.uid;
@@ -33,7 +36,10 @@ service cloud.firestore {
       allow list: if request.auth != null
         && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null
-        && request.resource.data.userId == request.auth.uid;
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.movieId is int
+        && request.resource.data.movieId > 0
+        && docId == request.auth.uid + '_' + string(request.resource.data.movieId);
       allow update: if request.auth != null
         && resource.data.userId == request.auth.uid
         && request.resource.data.userId == resource.data.userId;
@@ -46,3 +52,4 @@ service cloud.firestore {
     }
   }
 }
+

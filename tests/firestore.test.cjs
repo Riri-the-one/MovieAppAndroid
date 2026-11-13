@@ -16,6 +16,7 @@ for (const [name, ownerField] of [['users_favorites', 'userId'], ['users_feedbac
     const owner = env.authenticatedContext('alice').firestore();
     const stranger = env.authenticatedContext('bob').firestore();
     const path = `${name}/alice_42`;
+    await assertFails(setDoc(doc(stranger, path), { [ownerField]: 'bob', movieId: 42 }));
     await assertSucceeds(setDoc(doc(owner, path), { [ownerField]: 'alice', movieId: 42 }));
     await assertFails(setDoc(doc(stranger, path), { [ownerField]: 'bob', movieId: 42 }));
     await assertFails(setDoc(doc(owner, path), { [ownerField]: 'bob', movieId: 42 }));
@@ -36,3 +37,4 @@ test('profile and nested feedback are private to their owner', async () => {
   await assertFails(getDoc(doc(bob, 'users/alice/feedback/42')));
   await assertFails(setDoc(doc(bob, 'users/alice'), { username: 'intruder' }));
 });
+
