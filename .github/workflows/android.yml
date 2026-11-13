@@ -6,7 +6,7 @@ permissions:
   contents: read
 jobs:
   firestore:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
       - run: npm install --no-save --package-lock=false @firebase/rules-unit-testing@4.0.1 firebase@11.10.0 firebase-tools@14.7.0
       - run: npx firebase emulators:exec --project demo-movies-portfolio --config firebase.test.json --only firestore 'node --test tests/firestore.test.cjs'
   android:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +29,9 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
       - run: sdkmanager 'platforms;android-36.1' 'build-tools;36.0.0'
       - uses: gradle/actions/setup-gradle@v4
       - name: Quiz round regressions
@@ -45,3 +48,4 @@ jobs:
           name: android-reports
           path: app/build/reports
           if-no-files-found: ignore
+
