@@ -80,7 +80,7 @@ npx firebase emulators:exec --project demo-movies-portfolio --config firebase.te
 
 Only the fictional `demo-movies-portfolio` project is used by this test command. GitHub Actions runs these tests plus Android unit tests, lint and a debug build with fictional Firebase configuration. See [Actions](https://github.com/Riri-the-one/MovieAppAndroid/actions) for actual remote results.
 
-Local validation on 13 November 2026: **9 quiz regression checks passed**. The Gradle invocation stopped while downloading its distribution because terminal networking is restricted; unit tests, lint and the APK build did not run locally. No application screenshot or visual device validation is claimed. Details are in [the audit](docs/AUDIT.md).
+Validation on 13 November 2026: **9 quiz regression checks passed locally**. [GitHub Actions](https://github.com/Riri-the-one/MovieAppAndroid/actions/runs/43510428415) also passed all **4 Firestore emulator tests**, Android unit tests, Android Lint and `assembleDebug`. The local Gradle invocation stopped at its distribution download because terminal networking is restricted. CI uses fictional Firebase configuration and does not validate live service access. No application screenshot or visual device validation is claimed. Details are in [the audit](docs/AUDIT.md).
 
 ## Limitations and next steps
 
@@ -94,3 +94,4 @@ Local validation on 13 November 2026: **9 quiz regression checks passed**. The G
 ## Third-party services and assets
 
 Movie metadata and images are retrieved from [TMDB](https://www.themoviedb.org/). This product uses the TMDB API but is not endorsed or certified by TMDB. Movie titles, posters and packaged illustrations belong to their respective owners; the original asset provenance is not documented and no new ownership claim is made. Libraries retain their upstream licenses. Existing Git authorship and history are preserved; this work does not establish a license for the original application code.
+

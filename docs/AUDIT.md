@@ -46,8 +46,11 @@ Account deletion still cannot atomically coordinate Firebase Authentication and 
 | Source credential-pattern scan, excluding ignored original client config | No match for Google API key/private-key/token patterns after sanitizing tracked files; not a complete historical credential audit |
 | ADB device discovery | Failed to initialize its user directory under sandbox; no device/visual validation established |
 
-Firestore emulator checks and full Android checks are defined in CI; their definition does not imply they passed. Remote results must be checked on the PR. No screenshots were generated. No release build/signing was attempted. The Android framework-dependent changes still require CI and device validation.
+Remote validation: [Actions run 43510428415](https://github.com/Riri-the-one/MovieAppAndroid/actions/runs/43510428415), commit `1fdda53e1326973f707ea377cacd582a0b636d2a`, passed both jobs. The Firestore emulator executed 4 tests (4 passed, 0 failed). The Android job executed the Java round harness and `testDebugUnitTest lintDebug assembleDebug`; its log reports `BUILD SUCCESSFUL`. The first attempt revealed an obsolete SDK package in CI setup; the next attempt compiled Java and passed unit tests but found Android 16 gesture-back navigation as a lint error. CI setup and the drawer's OnBackPressedDispatcher callback were corrected, followed by the successful full run. Nonblocking lint/deprecation warnings still require incremental review. No screenshots or live-service tests were generated. No release build/signing was attempted. Device validation remains outstanding.
+
+Workspace update: after the initial clone, work moved to an independent directory under the system temporary directory, outside OneDrive. Creation of the specifically requested Documents workspace was denied by the session's filesystem permissions. The original source folder was not changed.
 
 ## Publication constraints
 
 No force push or history rewrite is permitted. The public baseline retains the original client identifiers even after removing them from the new tree. The owner should review restrictions/rotation in provider consoles. No original credentials are copied into documentation or test fixtures. This branch must not be represented as production-ready while service setup and device checks remain outstanding.
+
