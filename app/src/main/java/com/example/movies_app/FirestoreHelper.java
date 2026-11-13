@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -308,17 +309,14 @@ public final class FirestoreHelper {
         data.put("image", imageUrl != null ? imageUrl : "");
         data.put("timestamp", FieldValue.serverTimestamp());
 
-        DB.collection(COLLECTION_FEEDBACK)
-                .document(feedbackDocId(uid, movieId))
-                .set(data, SetOptions.merge())
-                .addOnSuccessListener(unused ->
-                        DB.collection(COLLECTION_USERS)
-                                .document(uid)
-                                .collection(SUBCOLLECTION_USER_FEEDBACK)
-                                .document(String.valueOf(movieId))
-                                .set(data, SetOptions.merge())
-                                .addOnSuccessListener(v -> callback.onSuccess())
-                                .addOnFailureListener(e -> callback.onSuccess()))
+        WriteBatch feedbackBatch = DB.batch();
+        feedbackBatch.set(DB.collection(COLLECTION_FEEDBACK)
+                .document(feedbackDocId(uid, movieId)), data, SetOptions.merge());
+        feedbackBatch.set(DB.collection(COLLECTION_USERS).document(uid)
+                .collection(SUBCOLLECTION_USER_FEEDBACK).document(String.valueOf(movieId)),
+                data, SetOptions.merge());
+        feedbackBatch.commit()
+                .addOnSuccessListener(unused -> callback.onSuccess())
                 .addOnFailureListener(e -> callback.onError(
                         e.getMessage() != null ? e.getMessage() : "Erreur Firestore"));
     }
@@ -560,51 +558,58 @@ public final class FirestoreHelper {
             return;
         }
         DocumentReference ref = DB.collection(COLLECTION_SCORES).document(userId);
-        ref.get().addOnSuccessListener(doc -> {
-            int current = 0;
-            if (doc.exists() && doc.getLong("totalScore") != null) {
-                current = doc.getLong("totalScore").intValue();
-            }
-            int newScore = current + points;
+        if (points <= 0) {
+            callback.onError("Nombre de points invalide");
+            return;
+        }
+        DB.runTransaction(transaction -> {
+            DocumentSnapshot doc = transaction.get(ref);
+            Long previous = doc.getLong("totalScore");
+            int newScore = Math.addExact(previous != null ? Math.toIntExact(previous) : 0, points);
             Map<String, Object> data = new HashMap<>();
             data.put("userId", userId);
             data.put("totalScore", newScore);
-            ref.set(data)
-                    .addOnSuccessListener(unused -> callback.onScore(newScore))
-                    .addOnFailureListener(e -> callback.onError(e.getMessage()));
-        }).addOnFailureListener(e -> callback.onError(e.getMessage()));
+            transaction.set(ref, data);
+            return newScore;
+        }).addOnSuccessListener(callback::onScore)
+                .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
     /**
      * Supprime toutes les données Firestore de l'utilisateur (profil, favoris, avis, score).
      */
     public static void deleteAllUserData(String userId, SimpleCallback callback) {
-        deleteCollectionWhereUserId(COLLECTION_FEEDBACK, userId, () ->
-                deleteCollectionWhereUserId(COLLECTION_FAVORITES, userId, () ->
-                        DB.collection(COLLECTION_USERS).document(userId).delete()
-                                .addOnCompleteListener(taskUsers ->
-                                        DB.collection(COLLECTION_SCORES).document(userId).delete()
-                                                .addOnCompleteListener(taskScores ->
-                                                        callback.onSuccess())
-                                )));
+        if (userId == null || !userId.equals(getCurrentUserId())) {
+            callback.onError("Non connecté");
+            return;
+        }
+        Query[] ownedQueries = {
+                DB.collection(COLLECTION_USERS).document(userId).collection(SUBCOLLECTION_USER_FEEDBACK),
+                DB.collection(COLLECTION_FEEDBACK).whereEqualTo("uid", userId),
+                DB.collection(COLLECTION_FAVORITES).whereEqualTo("userId", userId)
+        };
+        deleteOwnedQueries(ownedQueries, 0, userId, callback);
     }
 
-    private static void deleteCollectionWhereUserId(String collection, String userId, Runnable next) {
-        DB.collection(collection)
-                .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (snapshot.isEmpty()) {
-                        next.run();
-                        return;
-                    }
-                    WriteBatch batch = DB.batch();
-                    for (QueryDocumentSnapshot doc : snapshot) {
-                        batch.delete(doc.getReference());
-                    }
-                    batch.commit().addOnCompleteListener(unused -> next.run());
-                })
-                .addOnFailureListener(e -> next.run());
+    private static void deleteOwnedQueries(Query[] queries, int index, String uid, SimpleCallback callback) {
+        if (index == queries.length) {
+            WriteBatch batch = DB.batch();
+            batch.delete(DB.collection(COLLECTION_USERS).document(uid));
+            batch.delete(DB.collection(COLLECTION_SCORES).document(uid));
+            batch.commit().addOnSuccessListener(unused -> callback.onSuccess())
+                    .addOnFailureListener(e -> callback.onError(e.getMessage()));
+            return;
+        }
+        queries[index].limit(400).get().addOnSuccessListener(snapshot -> {
+            if (snapshot.isEmpty()) {
+                deleteOwnedQueries(queries, index + 1, uid, callback);
+                return;
+            }
+            WriteBatch batch = DB.batch();
+            for (QueryDocumentSnapshot doc : snapshot) batch.delete(doc.getReference());
+            batch.commit().addOnSuccessListener(unused -> deleteOwnedQueries(queries, index, uid, callback))
+                    .addOnFailureListener(e -> callback.onError(e.getMessage()));
+        }).addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
     /** Construit le prompt système personnalisé pour Gemini. */

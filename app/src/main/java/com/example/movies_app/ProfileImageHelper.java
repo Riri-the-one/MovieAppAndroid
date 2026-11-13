@@ -63,8 +63,14 @@ public final class ProfileImageHelper {
     private static Bitmap loadBitmap(Context context, Uri uri) throws IOException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             ImageDecoder.Source source = ImageDecoder.createSource(context.getContentResolver(), uri);
-            return ImageDecoder.decodeBitmap(source, (decoder, info, src) ->
-                    decoder.setAllocator(ImageDecoder.ALLOCATOR_SOFTWARE));
+            return ImageDecoder.decodeBitmap(source, (decoder, info, src) -> {
+                decoder.setAllocator(ImageDecoder.ALLOCATOR_SOFTWARE);
+                int width = info.getSize().getWidth();
+                int height = info.getSize().getHeight();
+                float ratio = Math.min(1f, (float) MAX_SIZE_PX / Math.max(width, height));
+                decoder.setTargetSize(Math.max(1, Math.round(width * ratio)),
+                        Math.max(1, Math.round(height * ratio)));
+            });
         }
         return MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
     }

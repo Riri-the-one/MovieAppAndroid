@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -101,6 +102,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         drawerLayout = findViewById(R.id.drawerLayout);
+        OnBackPressedCallback drawerBack = new OnBackPressedCallback(false) {
+            @Override public void handleOnBackPressed() {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, drawerBack);
+        drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override public void onDrawerOpened(@NonNull View drawerView) {
+                drawerBack.setEnabled(true);
+            }
+            @Override public void onDrawerClosed(@NonNull View drawerView) {
+                drawerBack.setEnabled(false);
+            }
+        });
         navigationView = findViewById(R.id.navigationView);
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -215,6 +230,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(new Intent(this, ManageProfileActivity.class));
         } else if (id == R.id.nav_preferences) {
             startActivity(new Intent(this, PreferencesActivity.class));
+        } else if (id == R.id.nav_quiz) {
+            startActivity(new Intent(this, QuizActivity.class));
         } else if (id == R.id.nav_logout) {
             logout();
         }
@@ -237,15 +254,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onResume();
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             startProfileRealtimeSync();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
         }
     }
 
@@ -434,3 +442,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return "Connexion impossible";
     }
 }
+

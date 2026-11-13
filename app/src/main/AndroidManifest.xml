@@ -19,7 +19,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyC5Tij9dcmjowF0ztBO1k31m5Rni7lmiks" />
+            android:value="${MAPS_API_KEY}" />
 
         <activity
             android:name=".LoginActivity"
@@ -50,6 +50,7 @@
             android:name=".ChatbotActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".QuizActivity" android:exported="false" />
         <activity
             android:name=".CinemaMapActivity"
             android:exported="false"

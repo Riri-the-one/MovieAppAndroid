@@ -65,6 +65,11 @@ public final class AuthHelper {
         }
 
         String uid = user.getUid();
+        if (user.getMetadata() == null
+                || System.currentTimeMillis() - user.getMetadata().getLastSignInTimestamp() > 5 * 60_000L) {
+            callback.onError("Reconnectez-vous puis réessayez de supprimer le compte.", true);
+            return;
+        }
         FirestoreHelper.deleteAllUserData(uid, new FirestoreHelper.SimpleCallback() {
             @Override
             public void onSuccess() {
@@ -73,8 +78,7 @@ public final class AuthHelper {
 
             @Override
             public void onError(String message) {
-                // Tente quand même de supprimer le compte Auth
-                deleteAuthUser(user, auth, callback);
+                callback.onError("Suppression des données interrompue : " + message, false);
             }
         });
     }
@@ -82,8 +86,8 @@ public final class AuthHelper {
     private static void deleteAuthUser(FirebaseUser user, FirebaseAuth auth,
                                        DeleteAccountCallback callback) {
         user.delete().addOnCompleteListener(task -> {
-            auth.signOut();
             if (task.isSuccessful()) {
+                auth.signOut();
                 callback.onSuccess();
                 return;
             }

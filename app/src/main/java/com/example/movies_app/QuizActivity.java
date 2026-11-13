@@ -43,6 +43,7 @@ public class QuizActivity extends AppCompatActivity {
     private String currentQuestion = "";
     private boolean isCheckingAnswer = false;
     private boolean isGeneratingQuestion = false;
+    private final QuizRound round = new QuizRound();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +66,25 @@ public class QuizActivity extends AppCompatActivity {
         buttonNewQuestion.setOnClickListener(v -> generateNewQuestion());
 
         loadScore();
-        generateNewQuestion();
+        if (savedInstanceState != null
+                && !savedInstanceState.getString("question", "").isEmpty()) {
+            currentQuestion = savedInstanceState.getString("question");
+            textViewQuestion.setText(currentQuestion);
+            round.questionReady();
+            if (savedInstanceState.getBoolean("answered")) {
+                round.answerCompleted();
+                buttonValidate.setEnabled(false);
+            }
+        } else {
+            generateNewQuestion();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("question", currentQuestion);
+        outState.putBoolean("answered", round.isAnswered());
     }
 
     private void loadScore() {
@@ -87,10 +106,12 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void generateNewQuestion() {
-        if (isGeneratingQuestion) {
+        if (isGeneratingQuestion || round.isChecking()) {
             return;
         }
         isGeneratingQuestion = true;
+        round.reset();
+        currentQuestion = "";
         textViewFeedback.setVisibility(View.GONE);
         editTextAnswer.setText("");
         textViewQuestion.setText(R.string.quiz_loading_question);
@@ -102,21 +123,25 @@ public class QuizActivity extends AppCompatActivity {
                 new GeminiHelper.GeminiCallback() {
                     @Override
                     public void onSuccess(String text) {
+                        if (isDestroyed() || isFinishing()) return;
                         isGeneratingQuestion = false;
                         progressBarQuiz.setVisibility(View.GONE);
                         buttonValidate.setEnabled(true);
                         buttonNewQuestion.setEnabled(true);
                         currentQuestion = text;
+                        round.questionReady();
                         textViewQuestion.setText(currentQuestion);
                     }
 
                     @Override
                     public void onError(String message) {
+                        if (isDestroyed() || isFinishing()) return;
                         isGeneratingQuestion = false;
                         progressBarQuiz.setVisibility(View.GONE);
                         buttonValidate.setEnabled(true);
                         buttonNewQuestion.setEnabled(true);
                         textViewQuestion.setText(R.string.quiz_error_question);
+                        buttonValidate.setEnabled(false);
                         Toast.makeText(QuizActivity.this, message, Toast.LENGTH_LONG).show();
                     }
                 });
@@ -135,7 +160,12 @@ public class QuizActivity extends AppCompatActivity {
         }
 
         isCheckingAnswer = true;
+        if (!round.beginAnswer()) {
+            isCheckingAnswer = false;
+            return;
+        }
         buttonValidate.setEnabled(false);
+        buttonNewQuestion.setEnabled(false);
         progressBarQuiz.setVisibility(View.VISIBLE);
         textViewFeedback.setVisibility(View.GONE);
 
@@ -146,13 +176,24 @@ public class QuizActivity extends AppCompatActivity {
                 new GeminiHelper.GeminiCallback() {
                     @Override
                     public void onSuccess(String text) {
+                        if (isDestroyed() || isFinishing()) return;
                         isCheckingAnswer = false;
                         progressBarQuiz.setVisibility(View.GONE);
-                        buttonValidate.setEnabled(true);
+                        buttonValidate.setEnabled(false);
+                        buttonNewQuestion.setEnabled(true);
+                        round.answerCompleted();
 
-                        String verdict = text.trim().toUpperCase();
-                        boolean correct = verdict.contains("CORRECT")
-                                && !verdict.contains("INCORRECT");
+                        String verdict = text.trim();
+                        if (!"CORRECT".equalsIgnoreCase(verdict)
+                                && !"INCORRECT".equalsIgnoreCase(verdict)) {
+                            round.reset();
+                            round.questionReady();
+                            buttonValidate.setEnabled(true);
+                            Toast.makeText(QuizActivity.this,
+                                    "Correction indisponible, veuillez réessayer.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        boolean correct = "CORRECT".equalsIgnoreCase(verdict);
                         if (correct) {
                             showFeedback(getString(R.string.quiz_correct), true);
                             FirestoreHelper.addPoints(POINTS_PER_CORRECT,
@@ -175,7 +216,10 @@ public class QuizActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(String message) {
+                        if (isDestroyed() || isFinishing()) return;
                         isCheckingAnswer = false;
+                        round.answerFailed();
+                        buttonNewQuestion.setEnabled(true);
                         progressBarQuiz.setVisibility(View.GONE);
                         buttonValidate.setEnabled(true);
                         Toast.makeText(QuizActivity.this, message, Toast.LENGTH_LONG).show();
