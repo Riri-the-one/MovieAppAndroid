@@ -15,3 +15,16 @@
 .externalNativeBuild
 .cxx
 local.properties
+.gradle-user/
+.idea/
+.vscode/
+app/google-services.json
+*.jks
+*.keystore
+*.p12
+*.pem
+.env
+.env.*
+!*.example
+node_modules/
+*-debug.log

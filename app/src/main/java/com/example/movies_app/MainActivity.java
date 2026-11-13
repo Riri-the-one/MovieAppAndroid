@@ -215,6 +215,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(new Intent(this, ManageProfileActivity.class));
         } else if (id == R.id.nav_preferences) {
             startActivity(new Intent(this, PreferencesActivity.class));
+        } else if (id == R.id.nav_quiz) {
+            startActivity(new Intent(this, QuizActivity.class));
         } else if (id == R.id.nav_logout) {
             logout();
         }
